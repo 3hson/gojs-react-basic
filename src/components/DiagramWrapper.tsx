@@ -5,6 +5,7 @@
 import * as go from "gojs";
 import { ReactDiagram } from "gojs-react";
 import * as React from "react";
+import { defaultProfileBase64, expandIconBase64, moreIconBase64} from "./icons";
 
 import "./Diagram.css";
 
@@ -173,38 +174,63 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
         go.Panel,
         "Vertical",
         {
-          minSize: new go.Size(170, NaN),
-          maxSize: new go.Size(170, NaN),
+          minSize: new go.Size(200, NaN),
+          maxSize: new go.Size(200, NaN),
           defaultAlignment: go.Spot.Right,
         },
         $(
           go.Panel,
           "Horizontal",
           {
-            margin: new go.Margin(5, 5, 5, 5),
-            defaultAlignment: go.Spot.Right,
+            margin: new go.Margin(3, 3, 3, 3),
           },
+          $(
+            go.Panel,
+            "Horizontal",
+            {
+              defaultAlignment: go.Spot.Left,
+              width: 30,
+            },
+            $(go.Picture, 
+              {
+                name: "Picture",
+                desiredSize: new go.Size(24, 24),
+              },
+              new go.Binding("source", "key", function () {
+                return moreIconBase64
+              }),
+              { width: 24, height: 24 }
+            ),
+          ),
           $(
             go.TextBlock,
             textStyle(),
             {
-              editable: false,
-              isMultiline: true,
               font: "bold 14px  Segoe UI,sans-serif",
               margin: new go.Margin(0, 7, 0, 0, ),
+              overflow: go.TextBlock.OverflowEllipsis,
+              maxLines: 1,
+              width: 110,
+              textAlign: "right",
             },
             new go.Binding("text", "name").makeTwoWay()
           ),
           $(go.Panel, "Spot",
             { isClipping: true, scale: 2 },
-            $(go.Shape, "Circle", { width: 15, strokeWidth: 0 } ),
+            $(go.Shape, "Circle", { width: 20, strokeWidth: 0 } ),
             $(go.Picture, 
               {
                 name: "Picture",
-                desiredSize: new go.Size(15, 15),
+                desiredSize: new go.Size(20, 20),
+                imageStretch: go.GraphObject.UniformToFill
               },
-              new go.Binding("source", "picture"),
-              { width: 15, height: 15 }
+              new go.Binding("source", "picture", function (image) {
+                if(image) {
+                  return image
+                } 
+                return defaultProfileBase64;
+              }),
+              { width: 20, height: 20 }
             )
           ),
         ),// end Horizontal Panel
@@ -212,53 +238,57 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
           go.Panel,
           "Horizontal",
           {
-            margin: new go.Margin(10, 0, 10, 0),
-            defaultAlignment: go.Spot.Right,
+            margin: new go.Margin(5, 3, 5, 3),
+            defaultStretch: go.GraphObject.Horizontal,
+            
+            width: 190
           },
-          $(
-            go.TextBlock,
-            textStyle(),
+          $(go.Picture, 
             {
-              editable: false,
-              isMultiline: true,
-              margin: new go.Margin(0, 7, 0, 0, ),
+              name: "Picture",
             },
-            new go.Binding("text", "pv", function (v) {
-              return "PV:" + v;
-            }).makeTwoWay()
+            new go.Binding("source", "key", function () {
+              return expandIconBase64
+            }),
+            { 
+              width: 16, 
+              height: 8,
+              alignment: go.Spot.Left
+            }
+            
           ),
-          $(
-            go.TextBlock,
-            textStyle(),
-            {
-              editable: false,
-              isMultiline: true,
-              margin: new go.Margin(0, 7, 0, 0, ),
-            },
-            new go.Binding("text", "gpv", function (v) {
-              return "GPV:" + v;
-            }).makeTwoWay()
-          ),
+            $(
+              go.TextBlock,
+              textStyle(),
+              {
+                margin: new go.Margin(0, 7, 0, 0 ),
+              },
+              new go.Binding("text", "pv", function (v) {
+                return "PV:" + v;
+              }).makeTwoWay()
+            ),
+            $(
+              go.TextBlock,
+              textStyle(),
+              {
+                margin: new go.Margin(0, 7, 0, 0, ),
+              },
+              new go.Binding("text", "gpv", function (v) {
+                return "GPV:" + v;
+              }).makeTwoWay()
+            ),
         ),// end Horizontal Panel
         $(
-          go.Panel,
-          "Horizontal",
+          go.TextBlock,
+          textStyle(),
           {
+            font: "12px  Segoe UI,sans-serif",
             margin: new go.Margin(5, 5, 5, 5),
-            defaultAlignment: go.Spot.Right,
           },
-          $(
-            go.TextBlock,
-            textStyle(),
-            {
-              editable: false,
-              isMultiline: true,
-              font: "12px  Segoe UI,sans-serif",
-            },
-            new go.Binding("text", "all/active", function (v) {
-              return "زیر مجموعه‌های فعال: " + v;
-            }).makeTwoWay()
-          ),
+          new go.Binding("text", "all/active", function (v) {
+            return "زیر مجموعه‌های فعال: " + v;
+          }
+        ).makeTwoWay()
         ),// end Horizontal Panel
       ) // end Vertical Panel
     ); // end Node
