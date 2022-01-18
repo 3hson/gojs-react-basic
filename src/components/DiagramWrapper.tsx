@@ -76,9 +76,10 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
       allowMove: false,
       layout: $(go.TreeLayout, {
         treeStyle: go.TreeLayout.StyleLastParents,
-        arrangement: go.TreeLayout.ArrangementHorizontal,
+        // arrangement: go.TreeLayout.ArrangementHorizontal,
+        arrangement: go.TreeLayout.ArrangementFixedRoots,
         // properties for most of the tree:
-        angle: 90,
+        angle: 180,
         layerSpacing: 35,
         // properties for the "last parents":
         alternateAngle: 90,
@@ -153,6 +154,10 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
     myDiagram.nodeTemplate = $(
       go.Node,
       "Auto",
+      {
+        isTreeExpanded: false,
+        selectionAdorned: false,
+      },
       // for sorting, have the Node.text be the data.name
       new go.Binding("text", "name"),
       // bind the Part.layerName to control the Node's layer depending on whether it isSelected
@@ -168,15 +173,16 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
         portId: "",
         fromLinkable: false,
         toLinkable: false,
-        cursor: "pointer",
+        cursor: "default",
       }),
       $(
         go.Panel,
         "Vertical",
         {
-          minSize: new go.Size(200, NaN),
-          maxSize: new go.Size(200, NaN),
+          minSize: new go.Size(170, NaN),
+          maxSize: new go.Size(170, NaN),
           defaultAlignment: go.Spot.Right,
+          defaultStretch: go.GraphObject.Horizontal,
         },
         $(
           go.Panel,
@@ -191,105 +197,132 @@ const DiagramWrapper: React.FC<DiagramProps> = ({
               defaultAlignment: go.Spot.Left,
               width: 30,
             },
-            $(go.Picture, 
+            $(
+              go.Picture,
               {
                 name: "Picture",
                 desiredSize: new go.Size(24, 24),
               },
               new go.Binding("source", "key", function () {
-                return moreIconBase64
+                return moreIconBase64;
               }),
               { width: 24, height: 24 }
-            ),
+            )
           ),
           $(
             go.TextBlock,
             textStyle(),
             {
               font: "bold 14px  Segoe UI,sans-serif",
-              margin: new go.Margin(0, 7, 0, 0, ),
+              margin: new go.Margin(0, 5, 0, 0),
               overflow: go.TextBlock.OverflowEllipsis,
               maxLines: 1,
-              width: 110,
+              width: 90,
               textAlign: "right",
             },
             new go.Binding("text", "name").makeTwoWay()
           ),
-          $(go.Panel, "Spot",
+          $(
+            go.Panel,
+            "Spot",
             { isClipping: true, scale: 2 },
-            $(go.Shape, "Circle", { width: 20, strokeWidth: 0 } ),
-            $(go.Picture, 
+            $(go.Shape, "Circle", { width: 20, strokeWidth: 0 }),
+            $(
+              go.Picture,
               {
                 name: "Picture",
                 desiredSize: new go.Size(20, 20),
-                imageStretch: go.GraphObject.UniformToFill
+                imageStretch: go.GraphObject.UniformToFill,
               },
               new go.Binding("source", "picture", function (image) {
-                if(image) {
-                  return image
-                } 
+                if (image) {
+                  return image;
+                }
                 return defaultProfileBase64;
               }),
               { width: 20, height: 20 }
             )
-          ),
-        ),// end Horizontal Panel
+          )
+        ), // end Horizontal Panel
         $(
           go.Panel,
-          "Horizontal",
+          "Table",
           {
-            margin: new go.Margin(5, 3, 5, 3),
+            margin: new go.Margin(10, 3, 5, 0),
             defaultStretch: go.GraphObject.Horizontal,
-            
-            width: 190
           },
-          $(go.Picture, 
+          $(
+            "TreeExpanderButton",
             {
-              name: "Picture",
+              width: 22,
+              height: 22,
+              margin: 4,
+              "ButtonBorder.figure": "Circle",
+              "ButtonBorder.fill": "#B0B0B0",
+              "_buttonFillOver": "#ccc",
+              "ButtonBorder.strokeWidth": 10,
             },
-            new go.Binding("source", "key", function () {
-              return expandIconBase64
-            }),
-            { 
-              width: 16, 
-              height: 8,
-              alignment: go.Spot.Left
-            }
-            
+            // $(go.Shape, "Ellipse", {
+            //   width: 22,
+            //   height: 22,
+            //   margin: 4,
+            //   fill: "#DDDDDD",
+            //   stroke: null,
+            // }),
+            // $(
+            //   go.Picture,
+            //   {
+            //     name: "Picture",
+            //     width: 14,
+            //     height: 7,
+            //     row: 0,
+            //     column: 0,
+            //   },
+            //   new go.Binding("source", "key", function () {
+            //     return expandIconBase64;
+            //   })
+            // ),
+            new go.Binding("visible", "mainnode", function (key) {
+              return key !== 1;
+            })
           ),
-            $(
-              go.TextBlock,
-              textStyle(),
-              {
-                margin: new go.Margin(0, 7, 0, 0 ),
-              },
-              new go.Binding("text", "pv", function (v) {
-                return "PV:" + v;
-              }).makeTwoWay()
-            ),
-            $(
-              go.TextBlock,
-              textStyle(),
-              {
-                margin: new go.Margin(0, 7, 0, 0, ),
-              },
-              new go.Binding("text", "gpv", function (v) {
-                return "GPV:" + v;
-              }).makeTwoWay()
-            ),
-        ),// end Horizontal Panel
+          $(
+            go.TextBlock,
+            textStyle(),
+            {
+              margin: new go.Margin(0, 7, 0, 0),
+              row: 0,
+              column: 1,
+            },
+            new go.Binding("text", "pv", function (v, target) {
+              return "PV:" + v;
+            }).makeTwoWay()
+          ),
+          $(
+            go.TextBlock,
+            textStyle(),
+            {
+              margin: new go.Margin(0, 0, 0, 0),
+              row: 0,
+              column: 2,
+              alignment: go.Spot.Center,
+            },
+            new go.Binding("text", "gpv", function (v) {
+              return "GPV:" + v;
+            }).makeTwoWay()
+          )
+        ), // end Horizontal Panel
         $(
           go.TextBlock,
           textStyle(),
           {
             font: "12px  Segoe UI,sans-serif",
-            margin: new go.Margin(5, 5, 5, 5),
+            margin: new go.Margin(0, 3, 5, 5),
           },
           new go.Binding("text", "all/active", function (v) {
             return "زیر مجموعه‌های فعال: " + v;
-          }
-        ).makeTwoWay()
-        ),// end Horizontal Panel
+          }).makeTwoWay()
+        ) // end Horizontal Panel
       ) // end Vertical Panel
     ); // end Node
 
